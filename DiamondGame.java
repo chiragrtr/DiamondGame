@@ -22,6 +22,7 @@ public class DiamondGame {
         myDeck.shuffle(1);
         for (int i = 0; i < cardsInOneSuit; i++) {
             diamonds[i] = myDeck.cards[i];
+            if (diamonds[i].pip == 1) diamonds[i].pip = 14;
         }
     }
 
@@ -37,26 +38,52 @@ public class DiamondGame {
             System.out.println("What's your bid?:\n");
             Scanner sc = new Scanner(System.in);
             int userBid = sc.nextInt();
-            int computerBid = getComputerBid();
+            while(isInvalid(userBid)){
+                userBid = sc.nextInt();
+            }
 
-            if(userBid > computerBid){
-                computerMoney += Float.parseFloat(diamonds[i].getPip());
+            int computerBid = getComputerBid(diamonds[i].pip);
+
+            if(userBid < computerBid){
+                System.out.println("Sorry, Computer won this bid");
+                computerMoney += (float)diamonds[i].pip;
             }
             else if(userBid == computerBid){
-                computerMoney += Float.parseFloat(diamonds[i].getPip()) / 2;
-                userMoney += Float.parseFloat(diamonds[i].getPip()) / 2;
+                System.out.println("It's a tie; You get half the money");
+                computerMoney += (float)diamonds[i].pip / 2;
+                userMoney += (float)diamonds[i].pip / 2;
             }
             else{
                 System.out.println("Congrats you won this bid");
-                userMoney += Float.parseFloat(diamonds[i].getPip());
+                userMoney += (float)diamonds[i].pip;
             }
         }
        System.out.println(computerMoney > userMoney ? "You lost" : "Congratulations you won the game");
-       System.out.println("Computer has " + computerMoney + " money, and you have" + userMoney);
+       System.out.println("Computer has " + computerMoney + " money, and you have " + userMoney);
     }
 
-    public int getComputerBid(){
-        return 15;
+    public boolean isInvalid(int userBid){
+        if(userBid == 1){
+            System.out.println("ERROR: Use 14 for A\nWhat's your bid");
+            return true;
+        }
+        if(userBid == 14){
+            if(playerCards[0].pip != 0){
+                playerCards[0].pip = 0;
+                return false;
+            }
+            System.out.println("ERROR: You don't have this card available\nWhat's your bid");
+            return true;
+        }
+        else if(playerCards[userBid-1].pip != 0){
+            playerCards[userBid-1].pip = 0;
+            return  false;
+        }
+        System.out.println("ERROR: You don't have this card available\nWhat's your bid");
+        return true;
+    }
+    public int getComputerBid(int i){
+        return i;
     }
 
     public String toString() {
