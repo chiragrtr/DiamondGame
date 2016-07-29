@@ -5,7 +5,11 @@ import java.util.Scanner;
 public class DiamondGame {
     public static final int STRATEGY = 2;
     public static final String ERRORSTRING = "ERROR: You don't have this card available\nWhat's your bid";
+    public static final int ACE = 14;
+    public static final int DIAMONDSUITNUM = 1;
+    public static final int HEARTSSUITNUM = 2;
     final int cardsInOneSuit = 13;
+
     Card[] computerCards;
     Card[] playerCards;
     Card[] diamonds;
@@ -19,12 +23,12 @@ public class DiamondGame {
         diamonds = new Card[cardsInOneSuit];
         for (int i = 0; i < cardsInOneSuit; i++) {
             computerCards[i] = myDeck.cards[i];
-            playerCards[i] = myDeck.cards[i + cardsInOneSuit * 2];
+            playerCards[i] = myDeck.cards[i + cardsInOneSuit * HEARTSSUITNUM];
         }
-        myDeck.shuffle(1);
+        myDeck.shuffle(DIAMONDSUITNUM);
         for (int i = 0; i < cardsInOneSuit; i++) {
             diamonds[i] = myDeck.cards[i];
-            if (diamonds[i].pip == 1) diamonds[i].pip = 14;         //for ACE
+            if (diamonds[i].pip == 1) diamonds[i].pip = ACE;         //for ACE
         }
     }
 
@@ -39,22 +43,16 @@ public class DiamondGame {
             System.out.println("What's your bid?:\n");
 
             int computerBid = getComputerBid(diamonds[i].pip);
-            Scanner sc = new Scanner(System.in);
-            int userBid = sc.nextInt();
-            while(isInvalid(userBid)){
-                userBid = sc.nextInt();
-            }
+            int userBid = getUserBid();
 
             if(userBid < computerBid){
                 System.out.println("Sorry, Computer won this bid");
                 computerMoney += (float)diamonds[i].pip;
-            }
-            else if(userBid == computerBid){
+            } else if(userBid == computerBid){
                 System.out.println("It's a tie; You get half the money");
                 computerMoney += (float)diamonds[i].pip / 2;
                 userMoney += (float)diamonds[i].pip / 2;
-            }
-            else{
+            } else{
                 System.out.println("Congrats you won this bid");
                 userMoney += (float)diamonds[i].pip;
             }
@@ -68,7 +66,7 @@ public class DiamondGame {
             System.out.println("ERROR: Use 14 for A\nWhat's your bid");
             return true;
         }
-        if(userBid == 14){                          // ACE is at first place in Card class
+        if(userBid == ACE){                          // ACE is at first place in Card class
             if(playerCards[0].pip != 0){
                 playerCards[0].pip = 0;
                 return false;
@@ -80,26 +78,33 @@ public class DiamondGame {
             playerCards[userBid-1].pip = 0;
             return  false;
         }
-        System.out.println("ERROR: You don't have this card available\nWhat's your bid");
+        System.out.println(ERRORSTRING);
         return true;
+    }
+    public int getUserBid(){
+        Scanner sc = new Scanner(System.in);
+        int userBid = sc.nextInt();
+        while(isInvalid(userBid)){
+            userBid = sc.nextInt();
+        }
+        return userBid;
     }
     public int getComputerBid(int i){
         if(STRATEGY == 1)
-        return i;
+            return i;
         else
             return getRandomComputerBid();
     }
 
     public int getRandomComputerBid(){
-        int bid = randomWithRange(1, 13);
-        while(computerCards[bid].pip == 0){
-            bid = randomWithRange(1, 13);
+        int bid = randomWithRange(1, cardsInOneSuit);
+        while(computerCards[bid-1].pip == 0){
+            bid = randomWithRange(1, cardsInOneSuit);
         }
-        computerCards[bid].pip = 0;
-        if(bid == 1) bid = 14;
+        computerCards[bid-1].pip = 0;
+        if(bid == 1) bid = ACE;
         return bid;
     }
-
     int randomWithRange(int min, int max)
     {
         int range = (max - min) + 1;
